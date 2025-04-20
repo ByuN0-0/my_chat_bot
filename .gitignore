@@ -3,9 +3,10 @@
 
 # Backend specific
 backend/__pycache__/
-backend/venv/
-backend/.venv/
+backend/venv/*
+backend/.venv/*
 backend/app.log
+.venv/
 
 # Frontend specific
 frontend/node_modules/
