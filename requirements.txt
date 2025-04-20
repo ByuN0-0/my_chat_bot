@@ -1,7 +1,6 @@
 fastapi
 uvicorn[standard]
-openai
-python-dotenv
-jinja2
 motor
+pydantic
+python-dotenv
 httpx

@@ -6,6 +6,9 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from dotenv import load_dotenv
 
+# 환경 변수 로드를 최상단으로 이동
+load_dotenv()
+
 # 라우터 임포트
 from routes.chat import router as chat_router
 from routes.admin import router as admin_router
@@ -23,8 +26,6 @@ logging.basicConfig(
     ]
 )
 logger = logging.getLogger(__name__)
-
-load_dotenv()
 
 app = FastAPI()
 
