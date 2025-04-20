@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FastAPI 챗봇</title>
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <div class="app-layout">
+      <!-- 좌측 사이드바 -->
+      <div class="sidebar">
+        <button id="new-chat-button">+ 새 대화 시작</button>
+        <h2>대화 목록</h2>
+        <ul id="session-list">
+          <!-- 세션 목록이 여기에 동적으로 추가됩니다 -->
+          <!-- 예시: <li data-session-id="conv_123">Conversation 1</li> -->
+        </ul>
+      </div>
+
+      <!-- 메인 채팅 영역 -->
+      <div class="main-content">
+        <div class="chat-container">
+          <div id="chat-box"></div>
+          <div class="input-area">
+            <input type="text" id="user-input" placeholder="메시지를 입력하세요..." />
+            <button id="send-button">전송</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const chatBox = document.getElementById("chat-box");
+      const userInput = document.getElementById("user-input");
+      const sendButton = document.getElementById("send-button");
+      const newChatButton = document.getElementById("new-chat-button");
+      const sessionList = document.getElementById("session-list");
+
+      let activeConversationId = null;
+      let sessionIds = [];
+
+      // --- 초기화 ---
+      document.addEventListener("DOMContentLoaded", async () => {
+        await loadSessionList();
+        const lastActiveId = localStorage.getItem("activeConversationId");
+
+        if (lastActiveId && sessionIds.includes(lastActiveId)) {
+          await switchSession(lastActiveId);
+        } else if (sessionIds.length > 0) {
+          // 마지막 활성 ID가 없거나 유효하지 않으면, 목록의 첫번째 (최신) 세션 활성화
+          await switchSession(sessionIds[0]);
+        } else {
+          // 세션 목록이 비어있으면 새 세션 시작
+          createNewSession();
+        }
+        userInput.focus();
+      });
+
+      // --- 세션 목록 로드 및 표시 ---
+      async function loadSessionList() {
+        try {
+          const response = await fetch("/sessions");
+          if (!response.ok) {
+            console.error("세션 목록 로드 실패:", response.status);
+            return;
+          }
+          const data = await response.json();
+          sessionIds = data.sessions || []; // 세션 ID 목록 저장
+          console.log("세션 목록 로드:", sessionIds);
+          renderSessionList();
+        } catch (error) {
+          console.error("세션 목록 로드 중 오류:", error);
+        }
+      }
+
+      function renderSessionList() {
+        sessionList.innerHTML = ""; // 목록 초기화
+        sessionIds.forEach((sessionId) => {
+          const li = document.createElement("li");
+          li.dataset.sessionId = sessionId;
+          // 세션 ID에서 앞부분(conv_)과 뒷부분 일부를 표시
+          li.textContent = `대화 ${sessionId.substring(5, 15)}...`;
+          li.title = sessionId; // 전체 ID는 툴팁으로
+          if (sessionId === activeConversationId) {
+            li.classList.add("active");
+          }
+          li.addEventListener("click", () => switchSession(sessionId));
+          sessionList.appendChild(li);
+        });
+      }
+
+      // --- 세션 전환 ---
+      async function switchSession(sessionId) {
+        if (activeConversationId === sessionId) return; // 이미 활성 상태면 아무것도 안 함
+
+        console.log(`세션 전환 시도: ${sessionId}`);
+        activeConversationId = sessionId;
+        localStorage.setItem("activeConversationId", sessionId);
+        chatBox.innerHTML = ""; // 채팅 내용 초기화
+        addMessage("bot", `대화 (${sessionId.substring(5, 15)}...)를 불러옵니다...`); // 로딩 메시지
+        await loadChatHistory(sessionId);
+        renderSessionList(); // 활성 세션 하이라이트 업데이트
+        userInput.focus();
+      }
+
+      // --- 새 대화 시작 ---
+      function createNewSession() {
+        const newSessionId = `conv_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+        console.log(`새 대화 시작: ${newSessionId}`);
+
+        // 새 ID를 목록 맨 앞에 추가 (UI 및 내부 데이터)
+        if (!sessionIds.includes(newSessionId)) {
+          sessionIds.unshift(newSessionId); // 배열 맨 앞에 추가
+        }
+
+        activeConversationId = newSessionId;
+        localStorage.setItem("activeConversationId", newSessionId);
+        chatBox.innerHTML = ""; // 채팅창 비우기
+        renderSessionList(); // 목록 새로 렌더링 (새 세션 포함 및 활성화)
+        addMessage("bot", "새 대화를 시작합니다."); // 초기 메시지
+        userInput.focus();
+      }
+      newChatButton.addEventListener("click", createNewSession);
+
+      // --- 메시지 추가 (UI) ---
+      function addMessage(sender, message) {
+        const messageElement = document.createElement("div");
+        messageElement.classList.add("message", sender);
+        messageElement.textContent = message;
+        chatBox.appendChild(messageElement);
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
+
+      // --- 대화 기록 로드 (기존 함수 약간 수정) ---
+      async function loadChatHistory(convId) {
+        console.log(`대화 기록 로드 시도: ${convId}`);
+        // 로딩 메시지 제거 (이미 switchSession에서 추가함)
+        // chatBox.innerHTML = ''; // 여기서 지우면 로딩 메시지도 지워짐
+        try {
+          const response = await fetch(`/history/${convId}`);
+          if (!response.ok) {
+            console.error(`대화 기록 로드 실패: ${response.status}`);
+            addMessage("bot", `이전 대화 기록 (${convId.substring(5, 15)}...) 로드 실패.`);
+            return;
+          }
+          const history = await response.json();
+          console.log(`${history.length}개의 이전 메시지 로드됨: ${convId}`);
+          // 로딩 메시지 삭제 (옵션)
+          const loadingMsg = chatBox.querySelector(".message.bot:last-child");
+          if (loadingMsg && loadingMsg.textContent.includes("불러옵니다")) {
+            loadingMsg.remove();
+          }
+
+          history.forEach((msg) => {
+            const sender = msg.role === "assistant" ? "bot" : msg.role;
+            addMessage(sender, msg.content);
+          });
+          // 모든 기록 추가 후 마지막으로 스크롤 조정
+          chatBox.scrollTop = chatBox.scrollHeight;
+        } catch (error) {
+          console.error("대화 기록 로드 중 오류 발생:", error);
+          addMessage("bot", "이전 대화 기록 로드 중 오류 발생.");
+        }
+      }
+
+      // --- 메시지 전송 (activeConversationId 사용하도록 수정) ---
+      async function sendMessage() {
+        const message = userInput.value.trim();
+        if (!message || !activeConversationId) return; // 활성 세션 없으면 전송 불가
+
+        addMessage("user", message);
+        userInput.value = "";
+        sendButton.disabled = true;
+
+        try {
+          const response = await fetch("/chat", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              conversation_id: activeConversationId, // *** 현재 활성 ID 사용 ***
+              message: message,
+            }),
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            addMessage("bot", `오류: ${errorData.detail || "알 수 없는 오류"}`);
+            return;
+          }
+          // 새 메시지가 오면 세션 목록을 다시 로드해서 순서를 업데이트 할 수 있음 (선택적)
+          // await loadSessionList();
+          // renderSessionList();
+
+          const data = await response.json();
+          addMessage("bot", data.response);
+        } catch (error) {
+          console.error("Error sending message:", error);
+          addMessage("bot", "메시지 전송 중 오류가 발생했습니다.");
+        } finally {
+          sendButton.disabled = false;
+          userInput.focus();
+        }
+      }
+
+      // --- 이벤트 리스너 ---
+      sendButton.addEventListener("click", sendMessage);
+      userInput.addEventListener("keypress", (event) => {
+        if (event.key === "Enter") {
+          sendMessage();
+        }
+      });
+    </script>
+  </body>
+</html>

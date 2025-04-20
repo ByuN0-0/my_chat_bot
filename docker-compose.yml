@@ -1,0 +1,30 @@
+version: "3.8"
+
+services:
+  app:
+    container_name: my_chatbot_app
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app # 코드를 컨테이너와 동기화하여 리로드 기능 활성화
+    env_file:
+      - .env # .env 파일에서 환경 변수 로드
+    depends_on:
+      - mongo # app 서비스가 mongo 서비스 시작 후 시작되도록 의존성 설정
+    command: uvicorn app:app --host 0.0.0.0 --port 8000 --reload # 컨테이너 내부에서 실행될 명령
+
+  mongo:
+    container_name: my_chatbot_mongo
+    image: mongo:latest # 공식 MongoDB 이미지 사용
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db # 데이터 영속성을 위한 볼륨 마운트
+    # 개발 환경에서는 인증 없이 사용. 프로덕션에서는 환경 변수로 사용자/비밀번호 설정 권장
+    # environment:
+    #   MONGO_INITDB_ROOT_USERNAME: your_mongo_user
+    #   MONGO_INITDB_ROOT_PASSWORD: your_mongo_password
+
+volumes:
+  mongo_data: # 명명된 볼륨 정의
