@@ -2,6 +2,7 @@ import os
 import logging
 from motor.motor_asyncio import AsyncIOMotorClient
 from datetime import datetime
+from typing import Optional, List
 
 logger = logging.getLogger(__name__)
 
@@ -37,8 +38,15 @@ async def close_mongo_connection():
         mongo_db.client.close()
         logger.info("MongoDB 연결 종료됨.")
 
-async def save_chat_message(conversation_id: str, role: str, content: str):
-    """채팅 메시지를 MongoDB에 저장합니다."""
+async def save_chat_message(
+    conversation_id: str,
+    role: str,
+    content: str,
+    prompt_tokens: Optional[int] = None,
+    completion_tokens: Optional[int] = None,
+    cost: Optional[float] = None
+):
+    """채팅 메시지와 관련 메타데이터(토큰, 비용 등)를 MongoDB에 저장합니다."""
     if mongo_db.collection is None:
         logger.error("MongoDB 컬렉션이 초기화되지 않았습니다. 메시지 저장 실패.")
         return
@@ -49,8 +57,16 @@ async def save_chat_message(conversation_id: str, role: str, content: str):
             "content": content,
             "timestamp": datetime.utcnow()
         }
+        if prompt_tokens is not None:
+            message_doc["prompt_tokens"] = prompt_tokens
+        if completion_tokens is not None:
+            message_doc["completion_tokens"] = completion_tokens
+        if cost is not None:
+            message_doc["cost"] = cost
+
         await mongo_db.collection.insert_one(message_doc)
-        logger.debug(f"메시지 저장됨: ConvID={conversation_id}, Role={role}")
+        log_extra = f", Tokens: P={prompt_tokens} C={completion_tokens}, Cost: ${cost:.6f}" if cost is not None else ""
+        logger.debug(f"메시지 저장됨: ConvID={conversation_id}, Role={role}{log_extra}")
     except Exception as e:
         logger.error(f"메시지 저장 실패: {e}", exc_info=True)
 
@@ -98,4 +114,92 @@ async def get_all_sessions() -> list:
         return session_ids
     except Exception as e:
         logger.error(f"세션 목록 조회 실패: {e}", exc_info=True)
+        return []
+
+async def get_daily_usage_stats() -> List[dict]:
+    """일별 토큰 사용량 및 비용 통계를 집계합니다."""
+    if mongo_db.collection is None:
+        logger.error("MongoDB 컬렉션 없음 - 일별 통계 조회 실패")
+        return []
+    try:
+        pipeline = [
+            {
+                "$match": { # assistant 역할의 문서만, 토큰/비용 필드 존재하는 것만
+                    "role": "assistant",
+                    "prompt_tokens": { "$exists": True },
+                    "completion_tokens": { "$exists": True },
+                    "cost": { "$exists": True }
+                }
+            },
+            {
+                "$group": {
+                    "_id": {
+                        # UTC 기준 날짜로 그룹화 (YYYY-MM-DD)
+                        "$dateToString": { "format": "%Y-%m-%d", "date": "$timestamp" }
+                    },
+                    "total_prompt_tokens": { "$sum": "$prompt_tokens" },
+                    "total_completion_tokens": { "$sum": "$completion_tokens" },
+                    "total_cost": { "$sum": "$cost" }
+                }
+            },
+            {
+                "$project": { # 결과 필드 이름 변경 및 형식 지정
+                    "_id": 0,
+                    "date": "$_id",
+                    "prompt_tokens": "$total_prompt_tokens",
+                    "completion_tokens": "$total_completion_tokens",
+                    "cost": "$total_cost"
+                }
+            },
+            { "$sort": { "date": 1 } } # 날짜 오름차순 정렬
+        ]
+        stats = await mongo_db.collection.aggregate(pipeline).to_list(length=None)
+        logger.info(f"{len(stats)}개의 일별 통계 조회됨")
+        return stats
+    except Exception as e:
+        logger.error(f"일별 통계 조회 실패: {e}", exc_info=True)
+        return []
+
+async def get_monthly_usage_stats() -> List[dict]:
+    """월별 토큰 사용량 및 비용 통계를 집계합니다."""
+    if mongo_db.collection is None:
+        logger.error("MongoDB 컬렉션 없음 - 월별 통계 조회 실패")
+        return []
+    try:
+        pipeline = [
+            {
+                "$match": {
+                    "role": "assistant",
+                    "prompt_tokens": { "$exists": True },
+                    "completion_tokens": { "$exists": True },
+                    "cost": { "$exists": True }
+                }
+            },
+            {
+                "$group": {
+                    "_id": {
+                        # UTC 기준 월로 그룹화 (YYYY-MM)
+                        "$dateToString": { "format": "%Y-%m", "date": "$timestamp" }
+                    },
+                    "total_prompt_tokens": { "$sum": "$prompt_tokens" },
+                    "total_completion_tokens": { "$sum": "$completion_tokens" },
+                    "total_cost": { "$sum": "$cost" }
+                }
+            },
+            {
+                "$project": {
+                    "_id": 0,
+                    "month": "$_id",
+                    "prompt_tokens": "$total_prompt_tokens",
+                    "completion_tokens": "$total_completion_tokens",
+                    "cost": "$total_cost"
+                }
+            },
+            { "$sort": { "month": 1 } } # 월 오름차순 정렬
+        ]
+        stats = await mongo_db.collection.aggregate(pipeline).to_list(length=None)
+        logger.info(f"{len(stats)}개의 월별 통계 조회됨")
+        return stats
+    except Exception as e:
+        logger.error(f"월별 통계 조회 실패: {e}", exc_info=True)
         return []

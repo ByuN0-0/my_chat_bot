@@ -16,6 +16,26 @@
           <!-- 세션 목록이 여기에 동적으로 추가됩니다 -->
           <!-- 예시: <li data-session-id="conv_123">Conversation 1</li> -->
         </ul>
+
+        <!-- 관리자 페이지 링크 추가 -->
+        <div style="margin-top: auto; padding-top: 20px; border-top: 1px solid #e9ecef">
+          <a
+            href="/admin"
+            id="admin-link"
+            style="
+              display: block;
+              text-align: center;
+              padding: 10px;
+              font-size: 0.9em;
+              color: #495057;
+              text-decoration: none;
+              border-radius: 6px;
+              background-color: #e9ecef;
+              transition: background-color 0.2s;
+            "
+            >관리자 페이지</a
+          >
+        </div>
       </div>
 
       <!-- 메인 채팅 영역 -->
@@ -98,7 +118,7 @@
         activeConversationId = sessionId;
         localStorage.setItem("activeConversationId", sessionId);
         chatBox.innerHTML = ""; // 채팅 내용 초기화
-        addMessage("bot", `대화 (${sessionId.substring(5, 15)}...)를 불러옵니다...`); // 로딩 메시지
+        addMessage("bot", `대화 (${sessionId.substring(5, 15)}...)를 불러최니다...`); // 로딩 메시지
         await loadChatHistory(sessionId);
         renderSessionList(); // 활성 세션 하이라이트 업데이트
         userInput.focus();
@@ -212,6 +232,16 @@
           sendMessage();
         }
       });
+
+      // admin-link hover 스타일 (선택적)
+      const adminLink = document.getElementById("admin-link");
+      if (adminLink) {
+        adminLink.addEventListener(
+          "mouseover",
+          () => (adminLink.style.backgroundColor = "#dee2e6")
+        );
+        adminLink.addEventListener("mouseout", () => (adminLink.style.backgroundColor = "#e9ecef"));
+      }
     </script>
   </body>
 </html>

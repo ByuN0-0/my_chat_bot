@@ -247,3 +247,157 @@ NotImplementedError: Collection objects do not implement truth value testing or 
 2025-04-20 04:16:27,744 - services.openai_service - INFO - OpenAI API 호출 시작 (모델: gpt-4.1-nano, ConvID: conv_1745122003831_7o0mv69xdy3, History: 7 messages)
 2025-04-20 04:16:29,334 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
 2025-04-20 04:16:29,335 - services.openai_service - INFO - OpenAI API 응답 성공
+2025-04-20 04:18:38,817 - db.mongo - INFO - MongoDB 연결 종료됨.
+2025-04-20 04:18:40,614 - db.mongo - INFO - MongoDB 연결 시도 중...
+2025-04-20 04:18:40,636 - db.mongo - INFO - MongoDB 연결 성공!
+2025-04-20 04:19:25,338 - db.mongo - INFO - MongoDB 연결 종료됨.
+2025-04-20 04:19:27,082 - db.mongo - INFO - MongoDB 연결 시도 중...
+2025-04-20 04:19:27,102 - db.mongo - INFO - MongoDB 연결 성공!
+2025-04-20 04:19:28,906 - db.mongo - INFO - MongoDB 연결 종료됨.
+2025-04-20 04:19:30,302 - db.mongo - INFO - MongoDB 연결 시도 중...
+2025-04-20 04:19:30,315 - db.mongo - INFO - MongoDB 연결 성공!
+2025-04-20 04:19:36,131 - db.mongo - INFO - MongoDB 연결 종료됨.
+2025-04-20 04:19:37,499 - db.mongo - INFO - MongoDB 연결 시도 중...
+2025-04-20 04:19:37,512 - db.mongo - INFO - MongoDB 연결 성공!
+2025-04-20 04:19:39,418 - db.mongo - INFO - MongoDB 연결 종료됨.
+2025-04-20 04:19:40,890 - db.mongo - INFO - MongoDB 연결 시도 중...
+2025-04-20 04:19:40,905 - db.mongo - INFO - MongoDB 연결 성공!
+2025-04-20 04:19:43,111 - db.mongo - INFO - MongoDB 연결 종료됨.
+2025-04-20 04:19:44,442 - db.mongo - INFO - MongoDB 연결 시도 중...
+2025-04-20 04:19:44,454 - db.mongo - INFO - MongoDB 연결 성공!
+2025-04-20 04:19:49,769 - db.mongo - INFO - MongoDB 연결 종료됨.
+2025-04-20 04:19:51,091 - db.mongo - INFO - MongoDB 연결 시도 중...
+2025-04-20 04:19:51,104 - db.mongo - INFO - MongoDB 연결 성공!
+2025-04-20 04:19:59,726 - db.mongo - INFO - MongoDB 연결 종료됨.
+2025-04-20 04:20:01,170 - db.mongo - INFO - MongoDB 연결 시도 중...
+2025-04-20 04:20:01,184 - db.mongo - INFO - MongoDB 연결 성공!
+2025-04-20 04:20:22,532 - db.mongo - INFO - MongoDB 연결 종료됨.
+2025-04-20 04:20:23,985 - db.mongo - INFO - MongoDB 연결 시도 중...
+2025-04-20 04:20:23,999 - db.mongo - INFO - MongoDB 연결 성공!
+2025-04-20 04:20:36,029 - db.mongo - INFO - MongoDB 연결 종료됨.
+2025-04-20 04:20:37,389 - db.mongo - INFO - MongoDB 연결 시도 중...
+2025-04-20 04:20:37,401 - db.mongo - INFO - MongoDB 연결 성공!
+2025-04-20 04:22:21,826 - db.mongo - INFO - MongoDB 연결 종료됨.
+2025-04-20 04:22:23,729 - db.mongo - INFO - MongoDB 연결 시도 중...
+2025-04-20 04:22:23,750 - db.mongo - INFO - MongoDB 연결 성공!
+2025-04-20 04:22:38,787 - db.mongo - INFO - MongoDB 연결 종료됨.
+2025-04-20 04:22:40,254 - db.mongo - INFO - MongoDB 연결 시도 중...
+2025-04-20 04:22:40,268 - db.mongo - INFO - MongoDB 연결 성공!
+2025-04-20 04:22:48,588 - db.mongo - INFO - MongoDB 연결 종료됨.
+2025-04-20 04:22:50,037 - db.mongo - INFO - MongoDB 연결 시도 중...
+2025-04-20 04:22:50,052 - db.mongo - INFO - MongoDB 연결 성공!
+2025-04-20 04:22:52,058 - db.mongo - INFO - MongoDB 연결 종료됨.
+2025-04-20 04:22:53,419 - db.mongo - INFO - MongoDB 연결 시도 중...
+2025-04-20 04:22:53,432 - db.mongo - INFO - MongoDB 연결 성공!
+2025-04-20 04:23:18,390 - db.mongo - INFO - MongoDB 연결 종료됨.
+2025-04-20 04:23:19,686 - db.mongo - INFO - MongoDB 연결 시도 중...
+2025-04-20 04:23:19,698 - db.mongo - INFO - MongoDB 연결 성공!
+2025-04-20 04:23:41,046 - db.mongo - INFO - MongoDB 연결 종료됨.
+2025-04-20 04:23:42,400 - db.mongo - INFO - MongoDB 연결 시도 중...
+2025-04-20 04:23:42,413 - db.mongo - INFO - MongoDB 연결 성공!
+2025-04-20 04:23:51,035 - db.mongo - INFO - MongoDB 연결 종료됨.
+2025-04-20 04:23:52,478 - db.mongo - INFO - MongoDB 연결 시도 중...
+2025-04-20 04:23:52,498 - db.mongo - INFO - MongoDB 연결 성공!
+2025-04-20 04:23:57,712 - db.mongo - INFO - MongoDB 연결 종료됨.
+2025-04-20 04:23:59,019 - db.mongo - INFO - MongoDB 연결 시도 중...
+2025-04-20 04:23:59,032 - db.mongo - INFO - MongoDB 연결 성공!
+2025-04-20 04:25:20,422 - db.mongo - INFO - MongoDB 연결 종료됨.
+2025-04-20 04:25:22,059 - db.mongo - INFO - MongoDB 연결 시도 중...
+2025-04-20 04:25:22,076 - db.mongo - INFO - MongoDB 연결 성공!
+2025-04-20 04:25:27,190 - db.mongo - INFO - MongoDB 연결 종료됨.
+2025-04-20 04:25:28,601 - db.mongo - INFO - MongoDB 연결 시도 중...
+2025-04-20 04:25:28,614 - db.mongo - INFO - MongoDB 연결 성공!
+2025-04-20 04:25:36,331 - routes.chat - INFO - 루트 페이지 요청 받음 (라우터)
+2025-04-20 04:25:36,370 - routes.chat - INFO - 세션 목록 라우트 호출됨
+2025-04-20 04:25:36,370 - services.session_service - INFO - 세션 목록 조회 서비스 호출됨
+2025-04-20 04:25:36,374 - db.mongo - INFO - 2개의 세션 목록 조회됨
+2025-04-20 04:25:36,379 - routes.chat - INFO - 대화 기록 라우트 호출됨: ConvID=conv_1745122003831_7o0mv69xdy3
+2025-04-20 04:25:36,380 - services.session_service - INFO - 채팅 기록 조회 서비스 호출됨: ConvID=conv_1745122003831_7o0mv69xdy3
+2025-04-20 04:26:40,887 - db.mongo - INFO - MongoDB 연결 종료됨.
+2025-04-20 04:26:42,660 - db.mongo - INFO - MongoDB 연결 시도 중...
+2025-04-20 04:26:42,677 - db.mongo - INFO - MongoDB 연결 성공!
+2025-04-20 04:26:48,190 - db.mongo - INFO - MongoDB 연결 종료됨.
+2025-04-20 04:26:49,651 - db.mongo - INFO - MongoDB 연결 시도 중...
+2025-04-20 04:26:49,664 - db.mongo - INFO - MongoDB 연결 성공!
+2025-04-20 04:26:51,570 - db.mongo - INFO - MongoDB 연결 종료됨.
+2025-04-20 04:26:53,117 - db.mongo - INFO - MongoDB 연결 시도 중...
+2025-04-20 04:26:53,130 - db.mongo - INFO - MongoDB 연결 성공!
+2025-04-20 04:26:54,641 - routes.chat - INFO - 대화 기록 라우트 호출됨: ConvID=conv_1745122544903_fshwhyo
+2025-04-20 04:26:54,641 - services.session_service - INFO - 채팅 기록 조회 서비스 호출됨: ConvID=conv_1745122544903_fshwhyo
+2025-04-20 04:26:55,273 - routes.chat - INFO - 대화 기록 라우트 호출됨: ConvID=conv_1745122003831_7o0mv69xdy3
+2025-04-20 04:26:55,273 - services.session_service - INFO - 채팅 기록 조회 서비스 호출됨: ConvID=conv_1745122003831_7o0mv69xdy3
+2025-04-20 04:27:02,251 - db.mongo - INFO - MongoDB 연결 종료됨.
+2025-04-20 04:27:03,804 - db.mongo - INFO - MongoDB 연결 시도 중...
+2025-04-20 04:27:03,818 - db.mongo - INFO - MongoDB 연결 성공!
+2025-04-20 04:27:05,725 - db.mongo - INFO - MongoDB 연결 종료됨.
+2025-04-20 04:27:07,314 - db.mongo - INFO - MongoDB 연결 시도 중...
+2025-04-20 04:27:07,330 - db.mongo - INFO - MongoDB 연결 성공!
+2025-04-20 04:27:09,438 - db.mongo - INFO - MongoDB 연결 종료됨.
+2025-04-20 04:27:10,952 - db.mongo - INFO - MongoDB 연결 시도 중...
+2025-04-20 04:27:10,965 - db.mongo - INFO - MongoDB 연결 성공!
+2025-04-20 04:27:12,971 - db.mongo - INFO - MongoDB 연결 종료됨.
+2025-04-20 04:27:14,381 - db.mongo - INFO - MongoDB 연결 시도 중...
+2025-04-20 04:27:14,395 - db.mongo - INFO - MongoDB 연결 성공!
+2025-04-20 04:27:16,302 - db.mongo - INFO - MongoDB 연결 종료됨.
+2025-04-20 04:27:17,986 - db.mongo - INFO - MongoDB 연결 시도 중...
+2025-04-20 04:27:18,000 - db.mongo - INFO - MongoDB 연결 성공!
+2025-04-20 04:27:20,007 - db.mongo - INFO - MongoDB 연결 종료됨.
+2025-04-20 04:27:21,459 - db.mongo - INFO - MongoDB 연결 시도 중...
+2025-04-20 04:27:21,473 - db.mongo - INFO - MongoDB 연결 성공!
+2025-04-20 04:27:32,802 - db.mongo - INFO - MongoDB 연결 종료됨.
+2025-04-20 04:27:34,161 - db.mongo - INFO - MongoDB 연결 시도 중...
+2025-04-20 04:27:34,176 - db.mongo - INFO - MongoDB 연결 성공!
+2025-04-20 04:27:43,100 - db.mongo - INFO - MongoDB 연결 종료됨.
+2025-04-20 04:27:44,468 - db.mongo - INFO - MongoDB 연결 시도 중...
+2025-04-20 04:27:44,480 - db.mongo - INFO - MongoDB 연결 성공!
+2025-04-20 04:28:11,231 - routes.chat - INFO - 루트 페이지 요청 받음 (라우터)
+2025-04-20 04:28:11,266 - routes.chat - INFO - 세션 목록 라우트 호출됨
+2025-04-20 04:28:11,266 - services.session_service - INFO - 세션 목록 조회 서비스 호출됨
+2025-04-20 04:28:11,269 - db.mongo - INFO - 2개의 세션 목록 조회됨
+2025-04-20 04:28:11,274 - routes.chat - INFO - 대화 기록 라우트 호출됨: ConvID=conv_1745122003831_7o0mv69xdy3
+2025-04-20 04:28:11,275 - services.session_service - INFO - 채팅 기록 조회 서비스 호출됨: ConvID=conv_1745122003831_7o0mv69xdy3
+2025-04-20 04:28:22,102 - routes.chat - INFO - 루트 페이지 요청 받음 (라우터)
+2025-04-20 04:28:22,121 - routes.chat - INFO - 세션 목록 라우트 호출됨
+2025-04-20 04:28:22,121 - services.session_service - INFO - 세션 목록 조회 서비스 호출됨
+2025-04-20 04:28:22,124 - db.mongo - INFO - 2개의 세션 목록 조회됨
+2025-04-20 04:28:22,132 - routes.chat - INFO - 대화 기록 라우트 호출됨: ConvID=conv_1745122003831_7o0mv69xdy3
+2025-04-20 04:28:22,132 - services.session_service - INFO - 채팅 기록 조회 서비스 호출됨: ConvID=conv_1745122003831_7o0mv69xdy3
+2025-04-20 04:28:23,798 - routes.admin - INFO - 관리자 페이지 요청 받음
+2025-04-20 04:28:23,829 - routes.admin - INFO - 일별 사용량 API 요청 받음
+2025-04-20 04:28:23,829 - services.admin_service - INFO - 일별 통계 서비스 호출됨
+2025-04-20 04:28:23,830 - routes.admin - INFO - 월별 사용량 API 요청 받음
+2025-04-20 04:28:23,830 - services.admin_service - INFO - 월별 통계 서비스 호출됨
+2025-04-20 04:28:23,832 - db.mongo - INFO - 0개의 일별 통계 조회됨
+2025-04-20 04:28:23,834 - db.mongo - INFO - 0개의 월별 통계 조회됨
+2025-04-20 04:28:28,414 - routes.chat - INFO - 루트 페이지 요청 받음 (라우터)
+2025-04-20 04:28:28,439 - routes.chat - INFO - 세션 목록 라우트 호출됨
+2025-04-20 04:28:28,439 - services.session_service - INFO - 세션 목록 조회 서비스 호출됨
+2025-04-20 04:28:28,441 - db.mongo - INFO - 2개의 세션 목록 조회됨
+2025-04-20 04:28:28,446 - routes.chat - INFO - 대화 기록 라우트 호출됨: ConvID=conv_1745122003831_7o0mv69xdy3
+2025-04-20 04:28:28,446 - services.session_service - INFO - 채팅 기록 조회 서비스 호출됨: ConvID=conv_1745122003831_7o0mv69xdy3
+2025-04-20 04:28:29,975 - routes.admin - INFO - 관리자 페이지 요청 받음
+2025-04-20 04:28:30,001 - routes.admin - INFO - 일별 사용량 API 요청 받음
+2025-04-20 04:28:30,001 - services.admin_service - INFO - 일별 통계 서비스 호출됨
+2025-04-20 04:28:30,002 - routes.admin - INFO - 월별 사용량 API 요청 받음
+2025-04-20 04:28:30,003 - services.admin_service - INFO - 월별 통계 서비스 호출됨
+2025-04-20 04:28:30,004 - db.mongo - INFO - 0개의 일별 통계 조회됨
+2025-04-20 04:28:30,005 - db.mongo - INFO - 0개의 월별 통계 조회됨
+2025-04-20 04:28:34,698 - routes.chat - INFO - 루트 페이지 요청 받음 (라우터)
+2025-04-20 04:28:34,722 - routes.chat - INFO - 세션 목록 라우트 호출됨
+2025-04-20 04:28:34,722 - services.session_service - INFO - 세션 목록 조회 서비스 호출됨
+2025-04-20 04:28:34,725 - db.mongo - INFO - 2개의 세션 목록 조회됨
+2025-04-20 04:28:34,730 - routes.chat - INFO - 대화 기록 라우트 호출됨: ConvID=conv_1745122003831_7o0mv69xdy3
+2025-04-20 04:28:34,730 - services.session_service - INFO - 채팅 기록 조회 서비스 호출됨: ConvID=conv_1745122003831_7o0mv69xdy3
+2025-04-20 04:44:42,212 - routes.chat - INFO - 루트 페이지 요청 받음 (라우터)
+2025-04-20 04:44:42,235 - routes.chat - INFO - 세션 목록 라우트 호출됨
+2025-04-20 04:44:42,235 - services.session_service - INFO - 세션 목록 조회 서비스 호출됨
+2025-04-20 04:44:42,239 - db.mongo - INFO - 2개의 세션 목록 조회됨
+2025-04-20 04:44:42,245 - routes.chat - INFO - 대화 기록 라우트 호출됨: ConvID=conv_1745122003831_7o0mv69xdy3
+2025-04-20 04:44:42,246 - services.session_service - INFO - 채팅 기록 조회 서비스 호출됨: ConvID=conv_1745122003831_7o0mv69xdy3
+2025-04-20 04:44:42,928 - routes.admin - INFO - 관리자 페이지 요청 받음
+2025-04-20 04:44:42,956 - routes.admin - INFO - 일별 사용량 API 요청 받음
+2025-04-20 04:44:42,956 - services.admin_service - INFO - 일별 통계 서비스 호출됨
+2025-04-20 04:44:42,957 - routes.admin - INFO - 월별 사용량 API 요청 받음
+2025-04-20 04:44:42,957 - services.admin_service - INFO - 월별 통계 서비스 호출됨
+2025-04-20 04:44:42,959 - db.mongo - INFO - 0개의 일별 통계 조회됨
+2025-04-20 04:44:42,959 - db.mongo - INFO - 0개의 월별 통계 조회됨

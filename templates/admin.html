@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>챗봇 관리자 페이지</title>
+    <link rel="stylesheet" href="/static/admin_style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <a href="/" class="back-link">&larr; 채팅 페이지로 돌아가기</a>
+      <h1>챗봇 사용량 통계</h1>
+
+      <!-- 일별 통계 -->
+      <h2>일별 사용량</h2>
+      <div id="daily-stats">
+        <p class="loading">일별 데이터를 불러오는 중...</p>
+        <table id="daily-table" style="display: none">
+          <thead>
+            <tr>
+              <th>날짜</th>
+              <th class="number">입력 토큰</th>
+              <th class="number">출력 토큰</th>
+              <th class="number">총 토큰</th>
+              <th class="number">예상 비용 (USD)</th>
+            </tr>
+          </thead>
+          <tbody id="daily-table-body">
+            <!-- 데이터가 여기에 삽입됩니다 -->
+          </tbody>
+          <tfoot id="daily-table-foot">
+            <!-- 총계가 여기에 삽입됩니다 -->
+          </tfoot>
+        </table>
+        <p class="error" style="display: none">일별 데이터를 불러오는데 실패했습니다.</p>
+      </div>
+
+      <!-- 월별 통계 -->
+      <h2>월별 사용량</h2>
+      <div id="monthly-stats">
+        <p class="loading">월별 데이터를 불러오는 중...</p>
+        <table id="monthly-table" style="display: none">
+          <thead>
+            <tr>
+              <th>월</th>
+              <th class="number">입력 토큰</th>
+              <th class="number">출력 토큰</th>
+              <th class="number">총 토큰</th>
+              <th class="number">예상 비용 (USD)</th>
+            </tr>
+          </thead>
+          <tbody id="monthly-table-body">
+            <!-- 데이터가 여기에 삽입됩니다 -->
+          </tbody>
+          <tfoot id="monthly-table-foot">
+            <!-- 총계가 여기에 삽입됩니다 -->
+          </tfoot>
+        </table>
+        <p class="error" style="display: none">월별 데이터를 불러오는데 실패했습니다.</p>
+      </div>
+    </div>
+
+    <script>
+      // 숫자 포맷 함수 (쉼표 추가)
+      function formatNumber(num) {
+        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      }
+
+      // 비용 포맷 함수 (소수점 6자리)
+      function formatCost(cost) {
+        return `$${cost.toFixed(6)}`;
+      }
+
+      // 테이블 행 생성 함수
+      function createTableRow(data, type) {
+        const tr = document.createElement("tr");
+        const period = type === "daily" ? data.date : data.month;
+        const totalTokens = data.prompt_tokens + data.completion_tokens;
+
+        tr.innerHTML = `
+                <td>${period}</td>
+                <td class="number">${formatNumber(data.prompt_tokens)}</td>
+                <td class="number">${formatNumber(data.completion_tokens)}</td>
+                <td class="number">${formatNumber(totalTokens)}</td>
+                <td class="number">${formatCost(data.cost)}</td>
+            `;
+        return tr;
+      }
+
+      // 테이블 총계 행 생성 함수
+      function createTotalRow(totals, type) {
+        const tr = document.createElement("tr");
+        tr.classList.add("total-row");
+        const totalTokens = totals.prompt_tokens + totals.completion_tokens;
+        const label = type === "daily" ? "일별 총계" : "월별 총계";
+
+        tr.innerHTML = `
+                <td>${label}</td>
+                <td class="number">${formatNumber(totals.prompt_tokens)}</td>
+                <td class="number">${formatNumber(totals.completion_tokens)}</td>
+                <td class="number">${formatNumber(totalTokens)}</td>
+                <td class="number">${formatCost(totals.cost)}</td>
+            `;
+        return tr;
+      }
+
+      // 데이터 로드 및 테이블 렌더링 함수
+      async function loadStats(
+        apiUrl,
+        tableBodyId,
+        tableFootId,
+        tableId,
+        statsKey,
+        errorMsgId,
+        loadingMsgId,
+        type
+      ) {
+        const tableBody = document.getElementById(tableBodyId);
+        const tableFoot = document.getElementById(tableFootId);
+        const table = document.getElementById(tableId);
+        const errorMsg = document.querySelector(`#${errorMsgId} .error`);
+        const loadingMsg = document.querySelector(`#${errorMsgId} .loading`);
+
+        try {
+          const response = await fetch(apiUrl);
+          if (!response.ok) {
+            throw new Error(`API Error: ${response.status}`);
+          }
+          const data = await response.json();
+          const stats = data[statsKey];
+
+          tableBody.innerHTML = ""; // 기존 내용 삭제
+          tableFoot.innerHTML = ""; // 기존 총계 삭제
+
+          let totals = { prompt_tokens: 0, completion_tokens: 0, cost: 0 };
+
+          if (stats && stats.length > 0) {
+            stats.forEach((stat) => {
+              tableBody.appendChild(createTableRow(stat, type));
+              totals.prompt_tokens += stat.prompt_tokens;
+              totals.completion_tokens += stat.completion_tokens;
+              totals.cost += stat.cost;
+            });
+            tableFoot.appendChild(createTotalRow(totals, type));
+            table.style.display = ""; // 테이블 보이기
+            errorMsg.style.display = "none";
+          } else {
+            tableBody.innerHTML =
+              '<tr><td colspan="5" style="text-align:center;">데이터가 없습니다.</td></tr>';
+            table.style.display = ""; // 테이블 보이기 (데이터 없음 메시지 표시)
+            errorMsg.style.display = "none";
+          }
+        } catch (error) {
+          console.error(`Error loading ${type} stats:`, error);
+          errorMsg.style.display = ""; // 에러 메시지 보이기
+          table.style.display = "none";
+        } finally {
+          loadingMsg.style.display = "none"; // 로딩 메시지 숨기기
+        }
+      }
+
+      // 페이지 로드 시 데이터 로드 실행
+      document.addEventListener("DOMContentLoaded", () => {
+        loadStats(
+          "/admin/usage/daily",
+          "daily-table-body",
+          "daily-table-foot",
+          "daily-table",
+          "daily_stats",
+          "daily-stats",
+          "daily-stats",
+          "daily"
+        );
+        loadStats(
+          "/admin/usage/monthly",
+          "monthly-table-body",
+          "monthly-table-foot",
+          "monthly-table",
+          "monthly_stats",
+          "monthly-stats",
+          "monthly-stats",
+          "monthly"
+        );
+      });
+    </script>
+  </body>
+</html>

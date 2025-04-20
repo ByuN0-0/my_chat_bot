@@ -1,16 +1,19 @@
 import logging
-from fastapi import APIRouter, HTTPException, Request # Request 추가
-from fastapi.responses import HTMLResponse # HTMLResponse 추가
-from fastapi.templating import Jinja2Templates # Jinja2Templates 추가
+from fastapi import APIRouter, HTTPException, Request
+from fastapi.responses import HTMLResponse, JSONResponse # JSONResponse 추가
+from fastapi.templating import Jinja2Templates
+from typing import List # List 추가
 
+# 스키마 임포트
 from schemas.chat import UserMessage
-from services.openai_service import get_chat_response
-from db.mongo import save_chat_message, get_chat_history, get_all_sessions # get_all_sessions 추가
+from schemas.session import SessionListResponse # 세션 스키마 임포트
+
+# 서비스 임포트
+from services import chat_service, session_service # 개별 서비스 임포트
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
-# templates 설정 (app.py와 동일하게 설정)
 templates = Jinja2Templates(directory="templates")
 
 @router.get("/", response_class=HTMLResponse)
@@ -18,57 +21,58 @@ async def read_root(request: Request):
     logger.info("루트 페이지 요청 받음 (라우터)")
     return templates.TemplateResponse("index.html", {"request": request})
 
-# 새로운 엔드포인트: 모든 세션 ID 목록 조회
-@router.get("/sessions")
-async def get_sessions():
-    logger.info("세션 목록 요청 받음")
+# 세션 목록 엔드포인트 (서비스 호출 및 응답 모델 사용)
+@router.get("/sessions", response_model=SessionListResponse)
+async def get_sessions_route():
+    logger.info("세션 목록 라우트 호출됨")
     try:
-        session_ids = await get_all_sessions()
-        return {"sessions": session_ids}
+        session_ids = await session_service.get_sessions()
+        return SessionListResponse(sessions=session_ids)
     except Exception as e:
-        logger.error(f"세션 목록 조회 중 오류 발생: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail="세션 목록 조회 중 오류가 발생했습니다.")
+        # 서비스 레벨에서 처리되지 않은 예외
+        logger.error(f"세션 목록 라우트 처리 중 오류 발생: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="세션 목록 조회 중 서버 오류가 발생했습니다.")
 
-# 새로운 엔드포인트: 대화 기록 조회
-@router.get("/history/{conversation_id}")
-async def get_history(conversation_id: str):
-    logger.info(f"대화 기록 요청 받음: ConvID={conversation_id}")
+# 대화 기록 조회 엔드포인트 (서비스 호출 및 응답 타입 명시)
+# 참고: Pydantic 모델을 정의하여 response_model로 사용하는 것이 더 엄격하지만, 여기서는 List[dict]를 사용
+@router.get("/history/{conversation_id}", response_model=List[dict])
+async def get_history_route(conversation_id: str):
+    logger.info(f"대화 기록 라우트 호출됨: ConvID={conversation_id}")
     if not conversation_id:
+        # 기본적인 입력 검증은 라우터에서 수행
         raise HTTPException(status_code=400, detail="conversation_id가 필요합니다.")
 
     try:
-        history = await get_chat_history(conversation_id) # db/mongo.py의 함수 사용
-        return history # 조회된 기록 (리스트) 반환
+        history = await session_service.get_history(conversation_id)
+        return history
     except Exception as e:
-        logger.error(f"대화 기록 조회 중 오류 발생: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail="대화 기록 조회 중 오류가 발생했습니다.")
+        # 서비스 레벨에서 처리되지 않은 예외
+        logger.error(f"대화 기록 라우트 처리 중 오류 발생: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="대화 기록 조회 중 서버 오류가 발생했습니다.")
 
-@router.post("/chat")
-async def handle_chat(user_message: UserMessage):
-    logger.info(f"채팅 요청 받음 (라우터): ConvID={user_message.conversation_id}, Msg={user_message.message}")
+# 채팅 엔드포인트 (서비스 호출)
+@router.post("/chat", response_class=JSONResponse)
+async def handle_chat_route(user_message: UserMessage):
+    logger.info(f"채팅 라우트 호출됨: ConvID={user_message.conversation_id}")
+    # Pydantic 모델을 통해 conversation_id 와 message 는 이미 검증됨 (존재 여부, 타입)
+    # 빈 문자열 등 추가 검증이 필요하면 여기서 수행 가능
     if not user_message.message:
-        logger.warning("빈 메시지로 채팅 요청 받음 (라우터)")
-        raise HTTPException(status_code=400, detail="메시지가 없습니다.")
+        raise HTTPException(status_code=400, detail="메시지 내용이 비어있습니다.")
     if not user_message.conversation_id:
-        logger.warning("conversation_id 없이 채팅 요청 받음 (라우터)")
-        raise HTTPException(status_code=400, detail="conversation_id가 필요합니다.")
+        raise HTTPException(status_code=400, detail="conversation_id가 비어있습니다.")
 
     try:
-        # 1. 사용자 메시지 저장
-        await save_chat_message(user_message.conversation_id, "user", user_message.message)
-
-        # 2. OpenAI 서비스 호출 (이제 conversation_id 전달)
-        bot_response = await get_chat_response(user_message.conversation_id, user_message.message)
-
-        # 3. 봇 응답 저장
-        await save_chat_message(user_message.conversation_id, "assistant", bot_response)
-
+        # chat_service 호출
+        bot_response = await chat_service.handle_new_message(
+            conversation_id=user_message.conversation_id,
+            user_message=user_message.message
+        )
         return {"response": bot_response}
     except ConnectionError as e:
-        # 서비스에서 발생시킨 예외를 여기서 처리
-        logger.error(f"서비스 연결 오류 발생: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=str(e))
+        # 서비스에서 발생시킨 특정 예외 처리
+        logger.error(f"OpenAI 서비스 연결 오류 발생 (라우트): {e}", exc_info=True)
+        raise HTTPException(status_code=503, detail=f"챗봇 서비스 연결 오류: {e}") # 503 Service Unavailable
     except Exception as e:
-        # 기타 예외 처리
-        logger.error(f"채팅 처리 중 예상치 못한 오류 발생: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail="챗봇 응답 처리 중 오류가 발생했습니다.")
+        # 기타 예상치 못한 오류
+        logger.error(f"채팅 라우트 처리 중 예상치 못한 오류 발생: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="챗봇 응답 처리 중 서버 오류가 발생했습니다.")

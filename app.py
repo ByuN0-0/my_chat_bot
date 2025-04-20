@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 
 # 라우터 임포트
 from routes.chat import router as chat_router
+from routes.admin import router as admin_router
 # MongoDB 연결/종료 함수 임포트
 from db.mongo import connect_to_mongo, close_mongo_connection
 
@@ -49,6 +50,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # 라우터 등록
 app.include_router(chat_router)
+app.include_router(admin_router)
 
 if __name__ == "__main__":
     logger.info("애플리케이션 시작 (단독 실행 모드)")

@@ -1,5 +1,6 @@
 import os
 import logging
+from typing import Tuple # Tuple 임포트
 from openai import OpenAI
 from dotenv import load_dotenv
 
@@ -23,21 +24,22 @@ except Exception as e:
     logger.error(f"OpenAI 클라이언트 초기화 중 오류 발생: {e}", exc_info=True)
     raise
 
-# 참고: 'gpt-4.1-nano'
+# gpt 4.1 nano
 MODEL_NAME = "gpt-4.1-nano"
 SYSTEM_PROMPT = "You are a helpful assistant."
 # 대화 기록 길이 제한 (토큰 제한 고려)
 HISTORY_LIMIT = 10
 
-async def get_chat_response(conversation_id: str, message: str) -> str:
-    """사용자 메시지와 대화 ID를 받아 OpenAI 챗봇 응답을 반환합니다.
-       대화 기록을 조회하여 맥락을 포함합니다.
+async def get_chat_response(conversation_id: str, message: str) -> Tuple[str, int, int]:
+    """사용자 메시지와 대화 ID를 받아 OpenAI 챗봇 응답과 토큰 사용량을 반환합니다.
+
+    Returns:
+        Tuple[str, int, int]: (봇 응답 메시지, 프롬프트 토큰 수, 완료 토큰 수)
     """
     if not message:
         logger.warning("빈 메시지로 응답 생성 시도")
-        # 서비스 레벨에서도 기본적인 입력 검증을 할 수 있습니다.
-        # 혹은 라우트에서 처리된 것으로 가정할 수도 있습니다.
-        return "메시지를 입력해주세요."
+        # 빈 메시지 경우 토큰 0으로 반환
+        return "메시지를 입력해주세요.", 0, 0
 
     try:
         # 1. MongoDB에서 대화 기록 조회
@@ -58,10 +60,20 @@ async def get_chat_response(conversation_id: str, message: str) -> str:
             model=MODEL_NAME,
             messages=messages
         )
+
         bot_message = response.choices[0].message.content
-        logger.info("OpenAI API 응답 성공")
-        return bot_message
+
+        # === 토큰 사용량 추출 ===
+        prompt_tokens = response.usage.prompt_tokens
+        completion_tokens = response.usage.completion_tokens
+        total_tokens = response.usage.total_tokens
+        logger.info(f"OpenAI API 응답 성공. Tokens: Prompt={prompt_tokens}, Completion={completion_tokens}, Total={total_tokens}")
+
+        return bot_message, prompt_tokens, completion_tokens
+
     except Exception as e:
         logger.error(f"OpenAI API 호출 중 오류 발생: {e}", exc_info=True)
-        # 여기서 예외를 다시 발생시켜 라우트에서 처리하도록 합니다.
+        # 오류 발생 시에도 튜플 형태로 반환 (토큰 0)
+        # raise ConnectionError(...) 대신 오류 메시지와 0 토큰 반환 고려 가능
+        # 여기서는 기존처럼 예외를 발생시키고 라우트에서 처리
         raise ConnectionError("챗봇 서비스와의 통신 중 오류가 발생했습니다.") from e
