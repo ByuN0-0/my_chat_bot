@@ -1,24 +1,15 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Box } from "@mui/material";
-
-// 컴포넌트 임포트 (다음 단계에서 생성)
 import Sidebar from "../components/Sidebar";
 import ChatWindow from "../components/ChatWindow";
-
-// API 서비스 임포트
 import { getSessions, getHistory } from "../services/api";
-
-// 메시지 타입 정의 (선택 사항이지만 권장)
 export interface Message {
   role: "user" | "assistant" | "bot"; // 'bot'은 프론트엔드 표시용
   content: string;
 }
-
-// API 응답의 메시지 타입 정의 (백엔드 API와 일치해야 함)
 interface ApiMessage {
   role: string;
   content: string;
-  // 백엔드가 다른 필드도 반환한다면 여기에 추가
 }
 
 const ChatPage: React.FC = () => {
@@ -26,6 +17,7 @@ const ChatPage: React.FC = () => {
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [loadingHistory, setLoadingHistory] = useState<boolean>(false);
+  const isInitialized = useRef(false);
 
   // 세션 목록 로드 함수
   const loadSessions = useCallback(async () => {
@@ -66,6 +58,11 @@ const ChatPage: React.FC = () => {
 
   // 초기 로드: 세션 목록 로드 및 마지막 활성 세션 또는 첫 세션 로드
   useEffect(() => {
+    if (isInitialized.current) {
+      return;
+    }
+    isInitialized.current = true;
+
     const initialize = async () => {
       const loadedSessions = await loadSessions();
       const lastActiveId = localStorage.getItem("activeConversationId");
@@ -88,7 +85,7 @@ const ChatPage: React.FC = () => {
       }
     };
     initialize();
-  }, [loadSessions, loadHistory]); // 의존성 배열에 함수 추가
+  }, [loadSessions, loadHistory]);
 
   // 세션 전환 함수
   const handleSelectSession = useCallback(
