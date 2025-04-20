@@ -56,7 +56,15 @@ const ChatPage: React.FC = () => {
     }
   }, []);
 
-  // 초기 로드: 세션 목록 로드 및 마지막 활성 세션 또는 첫 세션 로드
+  // 새 세션 생성 함수 (Sidebar에서도 호출 가능하게 유지)
+  const handleNewSession = useCallback((newSessionId: string) => {
+    setSessionIds((prev) => [newSessionId, ...prev]); // 목록 맨 앞에 추가
+    setActiveSessionId(newSessionId);
+    localStorage.setItem("activeConversationId", newSessionId);
+    setMessages([{ role: "bot", content: "새 대화를 시작합니다." }]); // 초기 메시지
+  }, []); // 의존성 없음 (상태 업데이트 함수는 안정적)
+
+  // 초기 로드: 세션 목록 로드 및 마지막 활성 세션 또는 첫 세션/새 세션 로드
   useEffect(() => {
     if (isInitialized.current) {
       return;
@@ -76,16 +84,19 @@ const ChatPage: React.FC = () => {
 
       if (targetSessionId) {
         setActiveSessionId(targetSessionId);
-        localStorage.setItem("activeConversationId", targetSessionId); // 로컬 스토리지 업데이트
+        localStorage.setItem("activeConversationId", targetSessionId);
         await loadHistory(targetSessionId);
       } else {
-        // 세션이 하나도 없으면 새 세션 생성 로직 호출 (Sidebar에서 구현)
-        // 여기서는 일단 null 상태 유지
-        console.log("활성 세션 없음");
+        // 활성 세션이 없으면 자동으로 새 대화 시작
+        console.log("활성 세션 없음 - 새 대화 자동 시작");
+        const newSessionId = `conv_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+        handleNewSession(newSessionId); // 새 세션 처리 함수 호출
       }
     };
     initialize();
-  }, [loadSessions, loadHistory]);
+    // handleNewSession은 useCallback으로 생성되었고 의존성이 없으므로 안정적,
+    // 명시적으로 추가해도 좋지만 필수는 아님. loadSessions/loadHistory는 이미 포함됨.
+  }, [loadSessions, loadHistory, handleNewSession]); // handleNewSession 추가
 
   // 세션 전환 함수
   const handleSelectSession = useCallback(
@@ -97,14 +108,6 @@ const ChatPage: React.FC = () => {
     },
     [activeSessionId, loadHistory]
   );
-
-  // 새 세션 생성 함수 (Sidebar에서 호출)
-  const handleNewSession = useCallback((newSessionId: string) => {
-    setSessionIds((prev) => [newSessionId, ...prev]); // 목록 맨 앞에 추가
-    setActiveSessionId(newSessionId);
-    localStorage.setItem("activeConversationId", newSessionId);
-    setMessages([{ role: "bot", content: "새 대화를 시작합니다." }]); // 초기 메시지
-  }, []);
 
   // 세션 삭제 처리 함수
   const handleDeleteSession = useCallback(
