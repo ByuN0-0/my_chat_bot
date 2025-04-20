@@ -1,3 +1,21 @@
+# Environment variables
 .env
-venv/
-__pycache__/
+
+# Backend specific
+backend/__pycache__/
+backend/venv/
+backend/.venv/
+backend/app.log
+
+# Frontend specific
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+
+# IDE/Editor specific
+.vscode/
+.idea/
+
+# OS specific
+.DS_Store
+Thumbs.db
