@@ -59,8 +59,28 @@ const AdminPage: React.FC = () => {
   }, []);
 
   return (
-    <Paper sx={{ p: 3 }}>
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+    <Paper
+      sx={{
+        p: 3,
+        minHeight: "calc(100vh - 48px)", // 최소 높이 설정 (헤더 등 고려)
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center", // 수평 중앙 정렬
+        justifyContent: "center", // 수직 중앙 정렬 추가
+        boxSizing: "border-box", // 패딩 포함하여 높이 계산
+      }}
+    >
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 4, // 제목과 테이블 간격 증가
+          width: "100%", // 내부 Box 너비 100%
+          maxWidth: "1200px", // 테이블 최대 너비 제한 (선택 사항)
+          mx: "auto", // 좌우 마진 auto 추가
+        }}
+      >
         <Typography variant="h4" gutterBottom component="div">
           관리자 페이지 - 사용 통계
         </Typography>
@@ -68,7 +88,16 @@ const AdminPage: React.FC = () => {
           챗봇 페이지로 돌아가기
         </Button>
       </Box>
-      <Grid container spacing={3}>
+      <Grid
+        container
+        spacing={3}
+        sx={{
+          width: "100%",
+          maxWidth: "1200px", // 테이블 최대 너비 제한 (선택 사항)
+          mx: "auto", // 좌우 마진 auto 추가
+          justifyContent: "center", // Grid 아이템 중앙 정렬 (내부 Box들에 영향)
+        }}
+      >
         <Box sx={{ width: "100%", mb: 2 }}>
           {/* 일별 통계 테이블 */}
           <StatsTable

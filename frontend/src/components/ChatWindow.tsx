@@ -100,9 +100,10 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
           flexGrow: 1,
           overflowY: "auto",
           minHeight: 0,
-          p: 3, // 패딩
-          mb: 1, // 입력 영역과의 간격
-          backgroundColor: "#f9f9f9", // 메시지 목록 배경색
+          py: 3, // 상하 패딩 유지
+          px: { xs: 4, sm: 6, md: 8, lg: 15, xl: 20 }, // 좌우 패딩 증가 (반응형)
+          mb: 1,
+          backgroundColor: "#f9f9f9",
         }}
       >
         {loadingHistory ? (
@@ -137,7 +138,10 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                     <Box
                       sx={{
                         p: "10px 15px",
-                        "& p": { my: 0 },
+                        lineHeight: 1.6,
+                        "& p": { my: 0.5, lineHeight: "inherit" },
+                        "& ul, & ol": { my: 0.5, pl: 2.5, lineHeight: "inherit" },
+                        "& li": { mb: 0.2 },
                         "& pre": {
                           my: 1,
                           p: 1.5,
@@ -154,7 +158,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                       <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
                     </Box>
                   ) : (
-                    <Typography variant="body1" sx={{ whiteSpace: "pre-wrap" }}>
+                    <Typography variant="body1" sx={{ whiteSpace: "pre-wrap", lineHeight: 1.6 }}>
                       {msg.content}
                     </Typography>
                   )}
@@ -171,9 +175,11 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
         sx={{
           display: "flex",
           alignItems: "center",
-          p: "15px 20px",
+          py: "15px", // 상하 패딩 유지 또는 조정
+          px: { xs: 4, sm: 6, md: 8, lg: 15, xl: 20 }, // 메시지 목록과 동일한 좌우 패딩 적용
           borderTop: "1px solid #e0e0e0",
           bgcolor: "#f8f9fa",
+          flexShrink: 0, // 입력 영역 높이 고정
         }}
         onSubmit={(e) => {
           e.preventDefault();
