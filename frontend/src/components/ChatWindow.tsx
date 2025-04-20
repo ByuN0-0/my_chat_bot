@@ -10,6 +10,8 @@ import {
   IconButton,
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 // ChatPage에서 정의한 Message 타입 임포트
 import { Message } from "../pages/ChatPage";
@@ -123,19 +125,39 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                 <Paper
                   elevation={1}
                   sx={{
-                    p: "10px 15px",
-                    borderRadius: "18px",
-                    maxWidth: "75%",
-                    bgcolor: msg.role === "user" ? "primary.main" : "#e0e0e0",
+                    p: msg.role === "bot" ? 0 : "10px 15px",
+                    bgcolor: msg.role === "user" ? "primary.main" : "#fff",
                     color: msg.role === "user" ? "primary.contrastText" : "text.primary",
                     borderBottomLeftRadius: msg.role === "user" ? "18px" : "4px",
                     borderBottomRightRadius: msg.role === "user" ? "4px" : "18px",
                     wordWrap: "break-word",
-                    whiteSpace: "pre-wrap", // 줄바꿈 및 공백 유지
                   }}
                 >
-                  {/* 메시지 내용 */}
-                  <Typography variant="body1">{msg.content}</Typography>
+                  {msg.role === "bot" ? (
+                    <Box
+                      sx={{
+                        p: "10px 15px",
+                        "& p": { my: 0 },
+                        "& pre": {
+                          my: 1,
+                          p: 1.5,
+                          bgcolor: "#f0f0f0",
+                          borderRadius: 1,
+                          overflowX: "auto",
+                        },
+                        "& code": { fontSize: "0.9em", fontFamily: "monospace" },
+                        "& table": { borderCollapse: "collapse", width: "100%", my: 1 },
+                        "& th, & td": { border: "1px solid #ddd", p: 1, textAlign: "left" },
+                        "& th": { bgcolor: "#f2f2f2", fontWeight: "bold" },
+                      }}
+                    >
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
+                    </Box>
+                  ) : (
+                    <Typography variant="body1" sx={{ whiteSpace: "pre-wrap" }}>
+                      {msg.content}
+                    </Typography>
+                  )}
                 </Paper>
               </ListItem>
             ))}

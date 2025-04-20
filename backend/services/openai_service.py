@@ -28,7 +28,7 @@ except Exception as e:
 
 # gpt 4.1 nano
 MODEL_NAME = "gpt-4.1-nano"
-SYSTEM_PROMPT = "당신은 사용자의 개인 비서입니다. 실시간 날씨를 조회하는 등의 도구를 사용할 수 있습니다."
+SYSTEM_PROMPT = "당신은 사용자의 개인 비서입니다. 실시간 날씨를 조회하는 등의 도구를 사용할 수 있습니다. 답변에 마크다운을 사용할 수 있습니다."
 # 대화 기록 길이 제한 (토큰 제한 고려)
 HISTORY_LIMIT = 10
 
@@ -156,7 +156,10 @@ async def get_chat_response(conversation_id: str, message: str) -> Tuple[str, in
 
             # --- 두 번째 호출 전 메시지 수정 지점 --- #
             # 예시: 도구 결과를 어떻게 사용할지 지시하는 시스템 메시지 추가
-            second_call_system_prompt = "You have received the result from a tool call. Please synthesize this information and provide a user-friendly response based on the tool's output."
+            second_call_system_prompt = """
+            당신은 도구로부터 정보를 얻었습니다. 과거의 메시지보다 새로 도구로 얻은 정보와 관련지어 사용자의 메시지에 응답하세요.
+            마크다운을 사용할 수 있습니다.
+            """
             # messages 리스트의 시스템 프롬프트(첫번째 요소)를 바꾸거나, 새 메시지를 추가할 수 있음
             # 여기서는 리스트 맨 뒤에 새 시스템 메시지 추가 (LLM은 마지막 메시지들에 더 주목하는 경향이 있음)
             # 또는 특정 위치(예: 마지막 tool 메시지 바로 뒤)에 삽입할 수도 있음.
