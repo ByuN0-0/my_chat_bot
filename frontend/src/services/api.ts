@@ -33,6 +33,18 @@ export const getHistory = async (conversationId: string) => {
   }
 };
 
+// 세션 삭제
+export const deleteSession = async (sessionId: string) => {
+  try {
+    const response = await apiClient.delete(`/history/${sessionId}`);
+    console.log(`세션 ${sessionId} 삭제 완료:`, response.data.message);
+    return response.data; // 성공 메시지 반환
+  } catch (error) {
+    console.error(`세션 ${sessionId} 삭제 중 오류 발생:`, error);
+    throw error;
+  }
+};
+
 // --- 채팅 관련 API ---
 
 // 새 메시지 보내기

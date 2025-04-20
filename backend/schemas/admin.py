@@ -2,8 +2,9 @@ from pydantic import BaseModel
 from typing import List
 
 class UsageStatBase(BaseModel):
-    prompt_tokens: int
-    completion_tokens: int
+    input_tokens: int
+    output_tokens: int
+    total_tokens: int
     cost: float
 
 class DailyUsageStat(UsageStatBase):

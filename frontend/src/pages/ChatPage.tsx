@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { Box } from "@mui/material";
 import Sidebar from "../components/Sidebar";
 import ChatWindow from "../components/ChatWindow";
-import { getSessions, getHistory } from "../services/api";
+import { getSessions, getHistory, deleteSession } from "../services/api";
 export interface Message {
   role: "user" | "assistant" | "bot"; // 'bot'은 프론트엔드 표시용
   content: string;
@@ -106,6 +106,41 @@ const ChatPage: React.FC = () => {
     setMessages([{ role: "bot", content: "새 대화를 시작합니다." }]); // 초기 메시지
   }, []);
 
+  // 세션 삭제 처리 함수
+  const handleDeleteSession = useCallback(
+    async (sessionIdToDelete: string) => {
+      try {
+        await deleteSession(sessionIdToDelete); // API 호출
+
+        // 상태 업데이트: 삭제된 세션 ID 제거
+        setSessionIds((prev) => prev.filter((id) => id !== sessionIdToDelete));
+
+        // 현재 활성 세션이 삭제된 세션인 경우 처리
+        if (activeSessionId === sessionIdToDelete) {
+          const remainingSessions = sessionIds.filter((id) => id !== sessionIdToDelete);
+          if (remainingSessions.length > 0) {
+            // 남은 세션 중 첫 번째(가장 최신) 세션을 활성화
+            const newActiveId = remainingSessions[0];
+            setActiveSessionId(newActiveId);
+            localStorage.setItem("activeConversationId", newActiveId);
+            await loadHistory(newActiveId); // 새 활성 세션 기록 로드
+          } else {
+            // 남은 세션이 없으면 활성 세션 null 처리 및 메시지 초기화
+            setActiveSessionId(null);
+            localStorage.removeItem("activeConversationId");
+            setMessages([{ role: "bot", content: "대화를 선택하거나 새 대화를 시작하세요." }]);
+          }
+        } else {
+          // 현재 활성 세션이 삭제되지 않았다면, 세션 목록만 업데이트하고 끝
+        }
+      } catch (error) {
+        console.error("세션 삭제 처리 중 오류:", error);
+        // 사용자에게 오류 알림 표시 (예: 스낵바 사용)
+      }
+    },
+    [activeSessionId, sessionIds, loadHistory]
+  ); // 의존성 추가
+
   // 메시지 목록 업데이트 함수 (ChatWindow에서 호출)
   const addMessageToList = (message: Message) => {
     setMessages((prev) => [...prev, message]);
@@ -118,6 +153,7 @@ const ChatPage: React.FC = () => {
         activeSessionId={activeSessionId}
         onSelectSession={handleSelectSession}
         onNewSession={handleNewSession}
+        onDeleteSession={handleDeleteSession}
       />
       <ChatWindow
         sessionId={activeSessionId}

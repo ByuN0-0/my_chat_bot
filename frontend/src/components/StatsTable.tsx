@@ -18,7 +18,9 @@ function formatNumber(num: number): string {
   return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
+// 비용 포맷 함수 주석 해제 또는 다시 추가
 function formatCost(cost: number): string {
+  // 비용이 매우 작을 수 있으므로 소수점 아래 자릿수 조정 (예: 6자리)
   return `$${cost.toFixed(6)}`;
 }
 
@@ -32,15 +34,16 @@ interface StatsTableProps {
 }
 
 const StatsTable: React.FC<StatsTableProps> = ({ title, data, type, isLoading, error }) => {
-  // 총계 계산
+  // 총계 계산 - cost 필드 추가
   const totals = data?.reduce(
     (acc, stat) => {
-      acc.prompt_tokens += stat.prompt_tokens;
-      acc.completion_tokens += stat.completion_tokens;
-      acc.cost += stat.cost;
+      acc.input_tokens += stat.input_tokens;
+      acc.output_tokens += stat.output_tokens;
+      acc.total_tokens += stat.total_tokens;
+      acc.cost += stat.cost; // 비용 누적 추가
       return acc;
     },
-    { prompt_tokens: 0, completion_tokens: 0, cost: 0 }
+    { input_tokens: 0, output_tokens: 0, total_tokens: 0, cost: 0 } // 초기값에 cost 추가
   );
 
   const periodLabel = type === "daily" ? "날짜" : "월";
@@ -84,21 +87,20 @@ const StatsTable: React.FC<StatsTableProps> = ({ title, data, type, isLoading, e
             <TableCell align="right">입력 토큰</TableCell>
             <TableCell align="right">출력 토큰</TableCell>
             <TableCell align="right">총 토큰</TableCell>
-            <TableCell align="right">예상 비용 (USD)</TableCell>
+            <TableCell align="right">예상 비용 (USD)</TableCell> {/* 비용 열 복구 */}
           </TableRow>
         </TableHead>
         <TableBody>
           {data.map((row) => {
             const period =
               type === "daily" ? (row as DailyUsageStat).date : (row as MonthlyUsageStat).month;
-            const totalTokens = row.prompt_tokens + row.completion_tokens;
             return (
               <TableRow key={period} hover>
                 <TableCell>{period}</TableCell>
-                <TableCell align="right">{formatNumber(row.prompt_tokens)}</TableCell>
-                <TableCell align="right">{formatNumber(row.completion_tokens)}</TableCell>
-                <TableCell align="right">{formatNumber(totalTokens)}</TableCell>
-                <TableCell align="right">{formatCost(row.cost)}</TableCell>
+                <TableCell align="right">{formatNumber(row.input_tokens)}</TableCell>
+                <TableCell align="right">{formatNumber(row.output_tokens)}</TableCell>
+                <TableCell align="right">{formatNumber(row.total_tokens)}</TableCell>
+                <TableCell align="right">{formatCost(row.cost)}</TableCell> {/* 비용 셀 복구 */}
               </TableRow>
             );
           })}
@@ -107,12 +109,10 @@ const StatsTable: React.FC<StatsTableProps> = ({ title, data, type, isLoading, e
           <TableFooter sx={{ "& td": { fontWeight: "bold", bgcolor: "#eef2f7" } }}>
             <TableRow>
               <TableCell>{totalLabel}</TableCell>
-              <TableCell align="right">{formatNumber(totals.prompt_tokens)}</TableCell>
-              <TableCell align="right">{formatNumber(totals.completion_tokens)}</TableCell>
-              <TableCell align="right">
-                {formatNumber(totals.prompt_tokens + totals.completion_tokens)}
-              </TableCell>
-              <TableCell align="right">{formatCost(totals.cost)}</TableCell>
+              <TableCell align="right">{formatNumber(totals.input_tokens)}</TableCell>
+              <TableCell align="right">{formatNumber(totals.output_tokens)}</TableCell>
+              <TableCell align="right">{formatNumber(totals.total_tokens)}</TableCell>
+              <TableCell align="right">{formatCost(totals.cost)}</TableCell> {/* 비용 셀 복구 */}
             </TableRow>
           </TableFooter>
         )}

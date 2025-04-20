@@ -8,8 +8,15 @@ import {
   Typography,
   Divider,
   Link as MuiLink,
+  IconButton,
+  Tooltip,
 } from "@mui/material";
-import { AddCommentOutlined, ForumOutlined, AdminPanelSettingsOutlined } from "@mui/icons-material";
+import {
+  AddCommentOutlined,
+  ForumOutlined,
+  AdminPanelSettingsOutlined,
+  DeleteOutline,
+} from "@mui/icons-material";
 import { Link } from "react-router-dom";
 
 interface SidebarProps {
@@ -17,6 +24,7 @@ interface SidebarProps {
   activeSessionId: string | null;
   onSelectSession: (sessionId: string) => void;
   onNewSession: (newSessionId: string) => void;
+  onDeleteSession: (sessionId: string) => void;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -24,12 +32,20 @@ const Sidebar: React.FC<SidebarProps> = ({
   activeSessionId,
   onSelectSession,
   onNewSession,
+  onDeleteSession,
 }) => {
   const handleNewChatClick = () => {
     // ChatPage에서 정의한 새 세션 생성 로직 호출
     // 이 함수는 내부적으로 새 ID 생성 및 상태 업데이트를 수행
     const newSessionId = `conv_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     onNewSession(newSessionId);
+  };
+
+  const handleDeleteClick = (event: React.MouseEvent<HTMLButtonElement>, sessionId: string) => {
+    event.stopPropagation(); // 이벤트 버블링 중단 (ListItemButton 클릭 방지)
+    if (window.confirm(`대화 '${sessionId.substring(5, 15)}...' 를 정말 삭제하시겠습니까?`)) {
+      onDeleteSession(sessionId);
+    }
   };
 
   return (
@@ -75,23 +91,50 @@ const Sidebar: React.FC<SidebarProps> = ({
             key={sessionId}
             selected={sessionId === activeSessionId}
             onClick={() => onSelectSession(sessionId)}
-            sx={{ borderRadius: "6px", mb: 0.5 }}
+            sx={{
+              borderRadius: "6px",
+              mb: 0.5,
+              pr: 1,
+              display: "flex",
+              justifyContent: "space-between",
+              "&:hover .delete-button": {
+                opacity: 1,
+              },
+            }}
           >
-            <ListItemIcon sx={{ minWidth: "36px" }}>
-              {" "}
-              {/* 아이콘 간격 조정 */}
-              <ForumOutlined fontSize="small" />
-            </ListItemIcon>
-            <ListItemText
-              primary={`대화 ${sessionId.substring(5, 15)}...`}
-              primaryTypographyProps={{
-                fontSize: "0.9em",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-              }}
-              title={sessionId} // 전체 ID 툴팁
-            />
+            <Box sx={{ display: "flex", alignItems: "center", overflow: "hidden" }}>
+              <ListItemIcon sx={{ minWidth: "36px" }}>
+                <ForumOutlined fontSize="small" />
+              </ListItemIcon>
+              <ListItemText
+                primary={`대화 ${sessionId.substring(5, 15)}...`}
+                primaryTypographyProps={{
+                  fontSize: "0.9em",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                }}
+                title={sessionId}
+                sx={{ mr: 1 }}
+              />
+            </Box>
+            <Tooltip title="대화 삭제">
+              <IconButton
+                className="delete-button"
+                size="small"
+                onClick={(e) => handleDeleteClick(e, sessionId)}
+                sx={{
+                  opacity: 0,
+                  transition: "opacity 0.2s ease-in-out",
+                  "&:hover": {
+                    backgroundColor: "action.hover",
+                  },
+                }}
+                aria-label={`대화 ${sessionId} 삭제`}
+              >
+                <DeleteOutline fontSize="small" />
+              </IconButton>
+            </Tooltip>
           </ListItemButton>
         ))}
       </List>

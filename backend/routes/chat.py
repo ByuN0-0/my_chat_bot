@@ -1,5 +1,5 @@
 import logging
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, status
 from fastapi.responses import HTMLResponse, JSONResponse # JSONResponse 추가
 from fastapi.templating import Jinja2Templates
 from typing import List # List 추가
@@ -49,6 +49,31 @@ async def get_history_route(conversation_id: str):
         # 서비스 레벨에서 처리되지 않은 예외
         logger.error(f"대화 기록 라우트 처리 중 오류 발생: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="대화 기록 조회 중 서버 오류가 발생했습니다.")
+
+# 대화 기록 삭제 엔드포인트
+@router.delete("/history/{conversation_id}", status_code=status.HTTP_200_OK)
+async def delete_history_route(conversation_id: str):
+    logger.info(f"대화 기록 삭제 라우트 호출됨: ConvID={conversation_id}")
+    if not conversation_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="conversation_id가 필요합니다."
+        )
+
+    try:
+        deleted_count = await session_service.delete_session(conversation_id)
+        return {"message": f"Conversation {conversation_id} deleted successfully. {deleted_count} messages removed."}
+    except ValueError as ve:
+        # 서비스에서 발생시킨 입력값 오류 처리
+        logger.warning(f"대화 기록 삭제 요청 오류 (잘못된 ID): {ve}")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(ve))
+    except Exception as e:
+        # 기타 예상치 못한 오류
+        logger.error(f"대화 기록 삭제 중 오류 발생: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="대화 기록 삭제 중 서버 오류가 발생했습니다."
+        )
 
 # 채팅 엔드포인트 (서비스 호출)
 @router.post("/chat", response_class=JSONResponse)
